@@ -86,24 +86,31 @@ export default function DashboardScreen() {
         {activeAlerts.length > 0 && (
           <View style={styles.section}>
             <View style={styles.sectionHeaderRow}>
-              <Text style={styles.sectionTitle}>
-                {language === 'hi' ? '⚠️ प्राथमिक जोखिम अलर्ट' : '⚠️ Active Risk Alerts Panel'}
-              </Text>
+              <View style={styles.alertTitleGroup}>
+                <Text style={styles.sectionTitle}>
+                  {language === 'hi' ? '⚠️ प्राथमिक जोखिम अलर्ट' : '⚠️ Active Risk Alerts'}
+                </Text>
+                <View style={styles.alertCountBadge}>
+                  <Text style={styles.alertCountBadgeText}>{activeAlerts.length}</Text>
+                </View>
+              </View>
               <Text style={styles.sectionSubtext}>
-                {language === 'hi' ? 'व्यक्तिगत रूप से खारिज करें' : 'Individually dismissible'}
+                {language === 'hi' ? '✕ टैप कर हटाएं' : 'Tap ✕ to dismiss'}
               </Text>
             </View>
-            {activeAlerts.map((alert) => (
-              <AlertBanner
-                key={alert.id}
-                alert={alert}
-                onAction={() => {
-                  if (alert.actionRoute) {
-                    router.push(`/(tabs)/${alert.actionRoute}` as any);
-                  }
-                }}
-              />
-            ))}
+            <View style={styles.alertsList}>
+              {activeAlerts.map((alert) => (
+                <AlertBanner
+                  key={alert.id}
+                  alert={alert}
+                  onAction={() => {
+                    if (alert.actionRoute) {
+                      router.push(`/(tabs)/${alert.actionRoute}` as any);
+                    }
+                  }}
+                />
+              ))}
+            </View>
           </View>
         )}
 
@@ -350,15 +357,37 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 8,
   },
+  alertTitleGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  alertCountBadge: {
+    backgroundColor: '#fee2e2',
+    borderWidth: 1,
+    borderColor: '#fca5a5',
+    borderRadius: 10,
+    paddingHorizontal: 7,
+    paddingVertical: 1,
+  },
+  alertCountBadgeText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#b91c1c',
+  },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '800',
     color: '#1f2937',
+    letterSpacing: -0.3,
   },
   sectionSubtext: {
     fontSize: 11,
-    color: '#6b7280',
+    color: '#64748b',
     fontWeight: '500',
+  },
+  alertsList: {
+    gap: 0,
   },
   kpiGrid: {
     flexDirection: 'row',
