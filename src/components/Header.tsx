@@ -97,34 +97,40 @@ export const Header: React.FC<HeaderProps> = ({ title, subtitle, rightAction }) 
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, !isDesktop && styles.containerMobile]}>
       {/* Top Meta Bar: Location Pill + Alerts (Left), Offline Status + Language (Right) */}
-      <View style={styles.topRow}>
+      <View style={[styles.topRow, !isDesktop && styles.topRowMobile]}>
         <View style={styles.topLeftGroup}>
           <TouchableOpacity
-            style={styles.locationBadge}
+            style={[styles.locationBadge, !isDesktop && styles.locationBadgeMobile]}
             activeOpacity={0.7}
             onPress={() => setShowLocationModal(true)}>
             <Text style={styles.locationDot}>📍</Text>
             <Text
               style={[
                 styles.locationText,
-                { maxWidth: isDesktop ? 300 : width < 380 ? 150 : 200 },
+                !isDesktop && styles.locationTextMobile,
               ]}
               numberOfLines={1}>
               {activeLocation.name}
             </Text>
-            <Text style={styles.elevPill}>
-              {activeLocation.elevationMeters}m ▾
-            </Text>
+            <View style={styles.elevBadge}>
+              <Text style={styles.elevPill}>
+                {activeLocation.elevationMeters}m
+              </Text>
+              <Text style={styles.elevArrow}>▾</Text>
+            </View>
           </TouchableOpacity>
 
           {activeAlertCount > 0 && (
-            <View style={styles.alertBadge}>
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={() => setShowLocationModal(true)}
+              style={styles.alertBadge}>
               <Text style={styles.alertText}>
                 ⚠️ {activeAlertCount}
               </Text>
-            </View>
+            </TouchableOpacity>
           )}
         </View>
 
@@ -145,24 +151,42 @@ export const Header: React.FC<HeaderProps> = ({ title, subtitle, rightAction }) 
             activeOpacity={0.7}
             onPress={() => setLanguage(language === 'en' ? 'hi' : 'en')}>
             <Text style={styles.langBtnText}>
-              {language === 'en' ? '🌐 हिंदी' : '🌐 EN'}
+              {language === 'en' ? 'हि' : 'EN'}
             </Text>
           </TouchableOpacity>
         </View>
       </View>
 
       {/* Screen Title & Action Button Row */}
-      <View style={[styles.titleRow, !isDesktop && styles.titleRowMobile]}>
-        <View style={{ flex: 1, paddingRight: 8 }}>
-          <Text style={[styles.title, !isDesktop && styles.titleMobile]}>{title}</Text>
-          {subtitle && (
-            <Text style={[styles.subtitle, !isDesktop && styles.subtitleMobile]} numberOfLines={isDesktop ? 2 : 1}>
-              {subtitle}
-            </Text>
+      {isDesktop ? (
+        <View style={styles.titleRow}>
+          <View style={{ flex: 1, paddingRight: 12 }}>
+            <Text style={styles.title}>{title}</Text>
+            {subtitle && (
+              <Text style={styles.subtitle} numberOfLines={2}>
+                {subtitle}
+              </Text>
+            )}
+          </View>
+          {rightAction && <View style={styles.rightActionContainer}>{rightAction}</View>}
+        </View>
+      ) : (
+        <View style={styles.mobileTitleBlock}>
+          <View style={styles.mobileTitleHeader}>
+            <Text style={styles.titleMobile}>{title}</Text>
+            {subtitle && (
+              <Text style={styles.subtitleMobile} numberOfLines={1}>
+                {subtitle}
+              </Text>
+            )}
+          </View>
+          {rightAction && (
+            <View style={styles.mobileActionStrip}>
+              {rightAction}
+            </View>
           )}
         </View>
-        {rightAction && <View style={styles.rightActionContainer}>{rightAction}</View>}
-      </View>
+      )}
 
       {/* Responsive Location Selector Modal (Mobile Bottom Sheet / Desktop Centered) */}
       {showLocationModal && (
@@ -390,12 +414,25 @@ export const Header: React.FC<HeaderProps> = ({ title, subtitle, rightAction }) 
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 14,
+    paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 10,
     backgroundColor: '#ffffff',
     borderBottomWidth: 1,
     borderBottomColor: '#e2e8f0',
+  },
+  containerMobile: {
+    paddingHorizontal: 14,
+    paddingTop: 8,
+    paddingBottom: 8,
+    backgroundColor: '#ffffff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f1f5f9',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 2,
+    elevation: 2,
   },
   topRow: {
     flexDirection: 'row',
@@ -403,11 +440,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 6,
   },
+  topRowMobile: {
+    marginBottom: 5,
+    gap: 4,
+  },
   topLeftGroup: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
     flex: 1,
+    marginRight: 6,
   },
   topRightGroup: {
     flexDirection: 'row',
@@ -425,6 +467,15 @@ const styles = StyleSheet.create({
     borderColor: '#c5e1a5',
     maxWidth: '85%',
   },
+  locationBadgeMobile: {
+    backgroundColor: '#f0fdf4',
+    borderColor: '#bbf7d0',
+    borderWidth: 1,
+    borderRadius: 14,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    maxWidth: '86%',
+  },
   locationDot: {
     fontSize: 10,
     marginRight: 4,
@@ -434,11 +485,31 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#33691e',
   },
+  locationTextMobile: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#166534',
+    flexShrink: 1,
+  },
+  elevBadge: {
+    backgroundColor: '#dcfce7',
+    borderRadius: 6,
+    paddingHorizontal: 5,
+    paddingVertical: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+    marginLeft: 4,
+  },
   elevPill: {
     fontSize: 10,
     fontWeight: '800',
-    color: '#2e7d32',
-    marginLeft: 3,
+    color: '#15803d',
+  },
+  elevArrow: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: '#15803d',
   },
   syncBadge: {
     flexDirection: 'row',
@@ -492,25 +563,41 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 4,
   },
-  titleRowMobile: {
-    alignItems: 'center',
-  },
   title: {
     fontSize: 22,
     fontWeight: '800',
     color: '#0f172a',
     letterSpacing: -0.5,
   },
-  titleMobile: {
-    fontSize: 19,
-  },
   subtitle: {
     fontSize: 12,
     color: '#64748b',
     marginTop: 1,
   },
+  mobileTitleBlock: {
+    marginTop: 2,
+  },
+  mobileTitleHeader: {
+    width: '100%',
+  },
+  titleMobile: {
+    fontSize: 19,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.4,
+  },
   subtitleMobile: {
     fontSize: 11,
+    color: '#64748b',
+    marginTop: 2,
+    lineHeight: 15,
+  },
+  mobileActionStrip: {
+    marginTop: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 8,
   },
   rightActionContainer: {
     marginLeft: 8,
